@@ -1,0 +1,43 @@
+version: '3.9'
+
+services:
+  keycloak:
+    image: quay.io/keycloak/keycloak:latest
+    container_name: keycloak
+    environment:
+      - KEYCLOAK_ADMIN=admin
+      - KEYCLOAK_ADMIN_PASSWORD=admin
+      - DB_VENDOR=postgres
+      - DB_ADDR=postgres-db:5432
+      - DB_DATABASE=keycloak
+      - DB_USER=keycloakuser
+      - DB_PASSWORD=keycloakpassword
+    ports:
+      - "8086:8080" # Keycloak exposed on port 8086
+    depends_on:
+      - postgres-db
+    networks:
+      - keycloak_network
+    restart: unless-stopped
+    command:
+      - start-dev # Start Keycloak in development mode
+
+  postgres-db:
+    image: postgres:latest
+    container_name: postgres-db
+    environment:
+      - POSTGRES_USER=keycloakuser
+      - POSTGRES_PASSWORD=keycloakpassword
+      - POSTGRES_DB=keycloak
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - keycloak_network
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+
+networks:
+  keycloak_network:
+    driver: bridge
