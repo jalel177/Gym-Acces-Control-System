@@ -21,28 +21,45 @@ public class User {
     @Id
     @Column(name = "user_id")
     private String userid;
-    @Column(name="firstName" , length = 10,nullable = true)
-    @Size(max=10, message =" le prénom ne doit pas depasser 10 caractéres")
+    @Column(name = "firstName", length = 10, nullable = true)
+    @Size(max = 10, message = " le prénom ne doit pas depasser 10 caractéres")
     private String firstName;
     private String lastName;
-    @Column(length=100,nullable = false,unique = true)
+    @Column(length = 100, nullable = false, unique = true)
     private String email;
-    private  String username;
-    private  String address ;
-    private String password ;
+    @Column(name = "username")
+    private String username;
+    private String address;
+    private String password;
     private String confPassword;
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
+    private List<Abonement> abonnements;
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<Commentaire> comments;
+    @ManyToMany(cascade = CascadeType.MERGE)
+    @JoinTable(
+            name = "session_users",
+            joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "cours_id", referencedColumnName = "cours_id")
+    )
+    private Set<SeanceCours> seancecours = new HashSet<>();
     @ManyToMany(cascade = CascadeType.MERGE)
     @JoinTable(
             name = "user_role",
             joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "user_id"),
             inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "role_id")
     )
-    private Set<Role> roles =new HashSet<>();}
+    private Set<Role> roles = new HashSet<>();
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private Set<Réservation> reservations = new HashSet<>();
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private Set<Favoris> favoris = new HashSet<>();
 
-
+}
 
 
 

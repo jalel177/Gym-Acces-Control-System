@@ -2,12 +2,18 @@ package com.example.demo.service;
 
 import com.example.demo.model.Abonement;
 import com.example.demo.model.User;
+import jakarta.transaction.Transactional;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 public interface Abonementinterface {
-    Abonement addabo(Abonement abonement);
+
+    @Transactional
+    Abonement addAbo(@RequestBody Map<String, Object> payload);
+
     void deleteabo(Long id);
 
     List<Abonement> addListabonnement(List<Abonement> listabonnement);
@@ -17,6 +23,9 @@ public interface Abonementinterface {
     Abonement getabonnemnt(Long id);
 
     Abonement getabonementsBytype(String ty);
+
+
+   List <Abonement> getSubscriptionsByUserId(String userid);
 
     List<Abonement> getAllabonementbytype(String ty);
 

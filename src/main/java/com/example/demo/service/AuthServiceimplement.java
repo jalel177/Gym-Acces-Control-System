@@ -32,6 +32,7 @@ public class AuthServiceimplement implements Authinterface {
     @Autowired
     private UserRepository userRepository;
 
+
     public AuthServiceimplement(
             RestTemplate restTemplate,
             @Value("${spring.security.oauth2.client.provider.keycloak.issuer-uri}") String issuerUri,
@@ -86,20 +87,21 @@ public class AuthServiceimplement implements Authinterface {
         headers.setBearerAuth(adminToken);
 
         Map<String, Object> userRepresentation = Map.of(
+                "firstName", registrationRequest.getFirstName(),
+                "lastName", registrationRequest.getLastName(),
                 "username", registrationRequest.getUsername(),
                 "email", registrationRequest.getEmail(),
                 "enabled", true,
-                "firstName", registrationRequest.getFirstname(),
-                "lastName", registrationRequest.getLastname(),
+                "attributes", Map.of(
+                        "address", registrationRequest.getAddress()),
                 "credentials", new Object[]{
                         Map.of(
                                 "type", "password",
                                 "value", registrationRequest.getPassword(),
                                 "temporary", false
                         )
-                },
-                "attributes", Map.of(
-                        "address", registrationRequest.getAddress())
+                }
+
         );
 
         HttpEntity<Map<String, Object>> request = new HttpEntity<>(userRepresentation, headers);
@@ -125,8 +127,8 @@ public class AuthServiceimplement implements Authinterface {
             newUser.setUserid(stringuserId);
             newUser.setUsername(registrationRequest.getUsername());
             newUser.setEmail(registrationRequest.getEmail());
-            newUser.setFirstName(registrationRequest.getFirstname());
-            newUser.setLastName(registrationRequest.getLastname());
+            newUser.setFirstName(registrationRequest.getFirstName());
+            newUser.setLastName(registrationRequest.getLastName());
 
             userRepository.save(newUser);
 
@@ -287,8 +289,8 @@ public class AuthServiceimplement implements Authinterface {
         return null;
 
     }
-
-    private String getAdminToken() {
+    @Override
+    public String getAdminToken() {
         String tokenEndpoint = keycloakBaseUrl + "/realms/" + keycloakRealm + "/protocol/openid-connect/token";
 
         HttpHeaders headers = new HttpHeaders();

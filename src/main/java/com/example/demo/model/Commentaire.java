@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -23,12 +24,11 @@ public class Commentaire {
     @NotBlank(message = "Le contenu ne peut pas être vide")
     private String contenu;
     @Column(name = "date_creation")
-    private LocalDate dateCreation;
+    private LocalDateTime dateCreation;
     @ManyToOne
     @JoinColumn(name = "user_id", referencedColumnName = "user_id")
     private User user;
-    @ManyToMany
-    @JoinTable(name = "seance_com",joinColumns = @JoinColumn(name = "com_id", referencedColumnName = "com_id"),
-            inverseJoinColumns = @JoinColumn(name ="cours_id", referencedColumnName = "cours_id"))
-    private Set<SeanceCours> seancecours =new HashSet<>();
+    @ManyToOne
+    @JoinColumn(name = "seancecours_id")
+    private SeanceCours seancecours;
 }

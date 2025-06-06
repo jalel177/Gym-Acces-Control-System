@@ -7,7 +7,9 @@ import java.util.List;
 
 public interface Commentaireinterface {
     @Transactional
-    Commentaire createCommentaire(Commentaire commentaire, String utilisateurId, Long seanceCoursId);
+    Commentaire createCommentaire(Commentaire commentaire, String userid, Long coursid);
 
     List<Commentaire> getCommentairesBySeanceCours(Long seanceCoursId);
+
+    void deleteCommentaire(Long commentId);
 }

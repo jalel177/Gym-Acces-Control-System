@@ -9,18 +9,18 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @RestController
+@RequestMapping("abonnement")
 public class AbonementController {
     @Autowired
     Abonementinterface abonementinterface;
 
     @PostMapping("addabo")
     @Transactional
-    public Abonement addAbo(@RequestBody Abonement abonement)
-    {
-
-        return abonementinterface.addabo(abonement);
+    public Abonement addAbo(@RequestBody Map<String, Object> payload) {
+        return abonementinterface.addAbo(payload);
     }
     @DeleteMapping("/deleteabo")
     public void deleteAbonnement(@RequestParam Long id){
@@ -31,7 +31,7 @@ public class AbonementController {
     {
         return abonementinterface.addListabonnement(abonement);
     }
-    @PatchMapping("/updateabo/{ids}")
+    @PutMapping("/updateabo/{ids}")
     public Abonement updateabo(@PathVariable("ids")Long id,@RequestBody Abonement abonement)
     {return abonementinterface.updateabonnement(id,abonement);}
 
@@ -71,6 +71,10 @@ public class AbonementController {
     public Abonement getAbobydatefin(@PathVariable LocalDate fin)
     {
         return abonementinterface.getabonementsBydatefin(fin);
+    }
+    @GetMapping("/getuserabo/{userid}")
+    public List<Abonement> getUserSubscriptionByType(@PathVariable String userid) {
+        return abonementinterface.getSubscriptionsByUserId(userid);
     }
 
 

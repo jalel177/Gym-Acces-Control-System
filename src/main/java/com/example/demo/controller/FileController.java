@@ -3,36 +3,44 @@ package com.example.demo.controller;
 import com.example.demo.model.File;
 import com.example.demo.service.Fileinterface;
 import com.example.demo.service.Fileserviceimplement;
+
+import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.stereotype.Repository;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.Optional;
 
 @RestController
 @RequestMapping("file")
 public class FileController {
     @Autowired
     private Fileinterface fileservice;
-    @PostMapping("/upload")
-    public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile file) {
-        return this.fileservice.uploadfile(file);}
-    @GetMapping("/download/{filename}")
+    @PostMapping("/uploadfile/{filename}")
+    public ResponseEntity<?> uploadFile(
+            @PathVariable("filename") String filename, // ✅ Correct variable name
+            @RequestParam("file") MultipartFile file // Use @RequestParam for file
+    ) {
+        return this.fileservice.uploadfile(filename, file); // Pass filename to service
+    }
+    @GetMapping("download/{filename}")
     public ResponseEntity<?> downloadFile(@PathVariable String filename) {
-        ResponseEntity<?> response = this.fileservice.downloadFile(filename);
-        if (response.getStatusCode() == HttpStatus.OK) {
-            File file = (File) response.getBody();
-            return ResponseEntity.ok().contentType(MediaType.parseMediaType(file.getContenttype()))
-                    .header(HttpHeaders.CONTENT_DISPOSITION,"attachment; filename=\""+file.getFilename()+"\"")
+        Optional<File> optionalFile = fileservice.downloadFile(filename);
+        if (optionalFile.isPresent()) {
+            File file = optionalFile.get();
+            return ResponseEntity.ok()
+                    .contentType(MediaType.parseMediaType(file.getContenttype()))
+                    // Pas besoin de "attachment" si tu veux l’afficher dans <img>
                     .body(file.getData());
-        }else{
-            return new ResponseEntity<>("File not found", HttpStatus.NOT_FOUND);}}
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("File not found");
+        }
+    }}
 
-}
+
 
 
 

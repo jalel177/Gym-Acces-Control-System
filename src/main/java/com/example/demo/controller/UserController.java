@@ -1,20 +1,24 @@
 package com.example.demo.controller;
 
+import com.example.demo.DTO.UserUpdatedto;
+import com.example.demo.dao.UserRepository;
 import com.example.demo.model.User;
 import com.example.demo.service.Userinterface;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 @RestController
-@RequestMapping("user")
+@RequestMapping("users")
 public class UserController {
     @Autowired
     Userinterface userInterface;
+
 
     @GetMapping("/user")
     public ResponseEntity<Map<String, Object>> getUser() {
@@ -32,16 +36,9 @@ public class UserController {
         return userInterface.addUser(user);
     }
 
-
-
-
-    @DeleteMapping("/delete/{id}")
-    public void deleteUser(@PathVariable String id){
-         userInterface.deleteUser(id);
-    }
     @DeleteMapping("/deleteuser")
-    public void deleteUsers(@RequestParam String id){
-        userInterface.deleteUser(id);
+    public void deleteUsers(@RequestParam String userid){
+        userInterface.deleteUser(userid);
     }
     @PostMapping("addlistusers")
     public List<User> addlistusers(@RequestBody List<User> users)
@@ -60,9 +57,13 @@ public class UserController {
     {
         return userInterface.addUserWTUN(user);
     }
-    @PatchMapping("/updateuser/{ids}")
-    public User updateuser(@PathVariable("ids")String id,@RequestBody User user)
-    {return userInterface.updateUser(id,user);}
+    @PutMapping("/updateuser/{user_id}")
+    public User updateUser(
+            @PathVariable("user_id") String userid,
+            @RequestBody UserUpdatedto.UserUpdateDTO userUpdateDTO
+    ) {
+        return userInterface.updateUser(userid, userUpdateDTO);
+    }
     @GetMapping("/getAllusers")
     public   List<User> getAllUsers()
     {
@@ -88,5 +89,7 @@ public class UserController {
     {
         return userInterface.getUsersByEmail(email);
     }
+
 }
+
 

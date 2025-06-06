@@ -1,5 +1,6 @@
 package com.example.demo.service;
 
+import com.example.demo.DTO.UserUpdatedto;
 import com.example.demo.model.User;
 import org.springframework.stereotype.Service;
 
@@ -9,7 +10,7 @@ import java.util.List;
 public interface Userinterface {
     User addUser(User user);
 
-    void deleteUser(String id);
+    void deleteUser(String userid);
 
     List<User> addListUsers(List<User> listusers);
 
@@ -30,5 +31,5 @@ public interface Userinterface {
     List<User> getUsersByEmail(String un);
 
 
-    User updateUser(String id, User user);
+    User updateUser(String id, UserUpdatedto.UserUpdateDTO userUpdateDTO);
 }

@@ -1,20 +1,51 @@
 package com.example.demo.service;
 
 import com.example.demo.dao.AbonementRepository;
+import com.example.demo.dao.UserRepository;
 import com.example.demo.model.Abonement;
+import com.example.demo.model.User;
+import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class AbonementServiceimplement implements Abonementinterface {
     @Autowired
     private AbonementRepository abonementrepository;
+    @Autowired
+    private UserRepository userRepository;
 
+    private static final Logger logger = LoggerFactory.getLogger(AbonementServiceimplement.class);
     @Override
-    public Abonement addabo(Abonement abonement) {
+    @Transactional
+    public Abonement addAbo(@RequestBody Map<String, Object> payload) {
+        logger.info("Received payload: {}", payload); // Add logging
+
+        String userId = payload.get("userid").toString();
+        logger.info("Extracted userid: {}", userId);
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found - ID: " + userId));
+
+        String type = (String) payload.get("type");
+        String startDate = (String) payload.get("datedebut");
+        String endDate = (String) payload.get("datefin");
+
+        logger.info("Creating subscription - Type: {}, Start: {}, End: {}", type, startDate, endDate);
+
+        Abonement abonement = new Abonement();
+        abonement.setType(type);
+        abonement.setDatedebut(LocalDate.parse(startDate));
+        abonement.setDatefin(LocalDate.parse(endDate));
+        abonement.setUser(user);
+
         return abonementrepository.save(abonement);
     }
 
@@ -44,18 +75,28 @@ public class AbonementServiceimplement implements Abonementinterface {
     public Abonement getabonementsBytype(String ty) {
         return abonementrepository.findAbonementByType(ty);
     }
-
     @Override
+    public List<Abonement> getSubscriptionsByUserId(String userid) {
+        return abonementrepository.findSubscriptionsByUserId(userid);
+    }
+
+
+@Override
     public List<Abonement> getAllabonementbytype(String ty) {
         return abonementrepository.findAbonementsByType(ty);
     }
     @Override
     public Abonement updateabonnement(Long id, Abonement abonement) {
-        abonement = abonementrepository.findById(id).get();
-        abonement.setDatedebut(abonement.getDatedebut());
-        abonement.setDatefin((abonement.getDatefin()));
-        abonement.setType((abonement.getType()));
-        return abonementrepository.save(abonement);
+        Abonement existing = abonementrepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Subscription not found"));
+
+        // 2. Update fields directly from the incoming object
+        existing.setType(abonement.getType());
+        existing.setDatedebut(abonement.getDatedebut());
+        existing.setDatefin(abonement.getDatefin());
+
+        // 3. Save updated entity
+        return abonementrepository.save(existing);
     }
     @Override
     public Abonement getabonementsBydatedebut(LocalDate debut) {

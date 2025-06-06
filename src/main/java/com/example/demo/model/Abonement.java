@@ -1,6 +1,7 @@
 package com.example.demo.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -25,11 +26,14 @@ public class Abonement {
     @Column(name = "datedebut")
     @NotNull(message = "La date de début d'abonnement est obligatoire")
     @JsonFormat(pattern = "yyyy-MM-dd")
-    private LocalDate Datedebut;
+    private LocalDate datedebut;
     @JsonFormat(pattern = "yyyy-MM-dd")
     @Column(name = "datefin")
     @NotNull(message = "La date de fin d'abonnement est obligatoire")
-    private LocalDate Datefin;
+    private LocalDate datefin;
+    @ManyToOne
+    @JoinColumn(name = "user_id", referencedColumnName = "user_id")
+    private User user;
 
 
 

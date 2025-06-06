@@ -1,7 +1,13 @@
 package com.example.demo.service;
 
+import com.example.demo.DTO.UserUpdatedto;
 import com.example.demo.dao.UserRepository;
 import com.example.demo.model.User;
+import org.keycloak.admin.client.Keycloak;
+import org.keycloak.admin.client.KeycloakBuilder;
+import org.keycloak.admin.client.resource.UserResource;
+import org.keycloak.representations.idm.CredentialRepresentation;
+import org.keycloak.representations.idm.UserRepresentation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,7 +16,6 @@ import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -19,9 +24,7 @@ public class Keycloakserviceimplement {
     @Autowired
     private UserRepository userRepository;
 
-    /**
-
-     Récupère ou crée un utilisateur basé sur les informations du token JWT Keycloak*/@Transactional
+@Transactional
     public User getCurrentUser(Authentication authentication) {
         Jwt jwt = (Jwt) authentication.getPrincipal();
         String keycloakId = jwt.getSubject();
@@ -50,5 +53,34 @@ public class Keycloakserviceimplement {
             }
         }
     }
+    public void updateKeycloakUserProfile(String userId, UserUpdatedto.UserUpdateDTO dto) {
+        Keycloak keycloak = KeycloakBuilder.builder()
+                .serverUrl("http://localhost:8086")
+                .realm("master")
+                .clientId("admin-cli")
+                .username("admin")
+                .password("admin")
+                .build();
+
+        UserResource userResource = keycloak.realm("master").users().get(userId);
+
+        UserRepresentation user = userResource.toRepresentation();
+        user.setFirstName(dto.getFirstName());
+        user.setLastName(dto.getLastName());
+        user.setEmail(dto.getEmail());
+
+        userResource.update(user);
+
+        // ➕ Mise à jour du mot de passe
+        if (dto.getPassword() != null && !dto.getPassword().isEmpty()) {
+            CredentialRepresentation newPassword = new CredentialRepresentation();
+            newPassword.setType(CredentialRepresentation.PASSWORD);
+            newPassword.setValue(dto.getPassword());
+            newPassword.setTemporary(false); // false = définitif
+
+            userResource.resetPassword(newPassword);
+        }
     }
+
+}
 

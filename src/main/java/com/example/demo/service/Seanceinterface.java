@@ -8,7 +8,7 @@ import java.util.List;
 public interface Seanceinterface {
     SeanceCours addSeance(SeanceCours seanceCours);
 
-    void deletseance(Long id);
+    void deletseance(Long coursid);
 
     List<SeanceCours> addListseancecours(List<SeanceCours> listseances);
 
@@ -16,11 +16,13 @@ public interface Seanceinterface {
 
     SeanceCours getseance(Long id);
 
-    SeanceCours updateseance(Long id, SeanceCours seancecours);
+    SeanceCours updateseance(Long coursid, SeanceCours seancecours);
 
     SeanceCours getseancebyentraineur(String en);
 
     List<SeanceCours> getAllseancesbyentraineurs(String en);
+
+    List<SeanceCours> getAllseancesbysportsname(String sp);
 
     SeanceCours getseancebydate(String da);
 

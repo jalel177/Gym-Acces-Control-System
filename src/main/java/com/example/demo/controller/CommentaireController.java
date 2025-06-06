@@ -1,8 +1,10 @@
 package com.example.demo.controller;
 
+import com.example.demo.DTO.CreateCommentdto;
 import com.example.demo.model.Commentaire;
 import com.example.demo.service.Commentaireinterface;
 import com.example.demo.service.Commentaireserviceimplement;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,19 +18,24 @@ public class CommentaireController {
     @Autowired
     private Commentaireinterface commentaireinterface;
 
-    @PostMapping("addcom/{userid}/{seanceCoursId}")
+    @PostMapping("/addcom/{userid}/{coursid}")
     public ResponseEntity<Commentaire> createCommentaire(
-            @RequestBody Commentaire commentaire,
             @PathVariable String userid,
-            @PathVariable Long seanceCoursId // Paramètre renommé
+            @PathVariable Long coursid,
+            @Valid @RequestBody CreateCommentdto dto
     ) {
-        Commentaire nouveauCommentaire = commentaireinterface.createCommentaire(
+        // build the entity here (Option 1 from before)
+        Commentaire commentaire = new Commentaire();
+        commentaire.setContenu(dto.getContenu());
+
+        Commentaire nouveau = commentaireinterface.createCommentaire(
                 commentaire,
                 userid,
-                seanceCoursId
+                coursid
         );
-        return new ResponseEntity<>(nouveauCommentaire, HttpStatus.CREATED);
+        return new ResponseEntity<>(nouveau, HttpStatus.CREATED);
     }
+
 
     // Endpoint modifié
     @GetMapping("/seance/{seanceCoursId}")
@@ -38,6 +45,11 @@ public class CommentaireController {
         return ResponseEntity.ok(
                 commentaireinterface.getCommentairesBySeanceCours(seanceCoursId)
         );
+    }
+    @DeleteMapping("/deletecom/{id}")
+    public ResponseEntity<Void> deleteComment(@PathVariable Long id) {
+        commentaireinterface.deleteCommentaire(id);
+        return ResponseEntity.noContent().build();
     }
 }
 

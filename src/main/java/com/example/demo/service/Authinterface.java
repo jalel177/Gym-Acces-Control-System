@@ -19,4 +19,6 @@ public interface Authinterface {
     ResponseEntity<?> refreshToken(RefreshTokenrequest refreshTokenRequest);
 
     ResponseEntity<?> getUsers();
+
+    String getAdminToken();
 }
